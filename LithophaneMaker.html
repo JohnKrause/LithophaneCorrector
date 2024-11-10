@@ -35,7 +35,7 @@
 
     </style>
 </head>
-<body>
+<body onload="docOnLoad()">
     <h1>Lithophane Corrector</h1>
     <h3>Lithophane Thickness</h3>
     <table>
@@ -164,7 +164,9 @@
 
     <canvas id="canvas" style="display:none;"></canvas>
     <img id="orig-img" src=""/><p/>
+    <input type="button" value="Generate Grayscale", onclick="grayscaleImage()"></input>
     <img id="gray-img" src=""/><p/>
+    <input type="button" value="Generate Heightmap", onclick="heightMap()"></input>
     <img id="output-img" src=""/><p/>
 
     <script>
@@ -182,12 +184,16 @@
 
         const maximizeContrastCheckbox = document.getElementById("maximize-contrast");
         const grayscaleAlgoSelect = document.getElementById("grayscale-algorithm-select");
+        let previousGrayscaleAlgo = null;
+        let grayscaleAlgo = null;
         const grayscaleTable = document.getElementById('grayscale-table');
         const redGrayValueInput = document.getElementById("red-gray-value");
         const greenGrayValueInput = document.getElementById("green-gray-value");
         const blueGrayValueInput = document.getElementById("blue-gray-value");
 
         const materialSelect = document.getElementById("material-select");
+        let previousMaterial = null;
+        let material = null;
         const materialTransmissionTable = document.getElementById('transmission-table');
         const redTransmissionInput = document.getElementById("red-transmission");
         const greenTransmissionInput = document.getElementById("green-transmission");
@@ -195,12 +201,16 @@
         const transmissionThicknessInput = document.getElementById("transmission-thickness");
 
         const lightSourceSelect = document.getElementById('lightsource-select');
+        let previousLightSource = null;
+        let lightSource = null;
         const lightSourceTable = document.getElementById('light-source-table');
         const redLightInput = document.getElementById("red-light");
         const greenLightInput = document.getElementById("green-light");
         const blueLightInput = document.getElementById("blue-light");
 
         const eyeSensSelect = document.getElementById('human-eye-select');
+        let previousEyeSens = null;
+        let eyeSens = null;
         const eyeSensTable = document.getElementById('eye-sens-table');
         const redEyeSensInput = document.getElementById("red-eye-sens");
         const greenEyeSensInput = document.getElementById("green-eye-sens");
@@ -248,24 +258,39 @@
         let thicknessArray=[];
         let correctGrayImageData=[];
 
-        let absorbanceRed = 0;
-        let absorbanceGreen = 0;
-        let absorbanceBlue = 0;
-        let c_absorbanceRed = 0;
-        let c_absorbanceGreen = 0;
-        let c_absorbanceBlue = 0;
-
-        let apparentFluxRed = 0;
-        let apparentFluxGreen = 0;
-        let apparentFluxBlue = 0;
-        let c_apparentFluxRed = 0;
-        let c_apparentFluxGreen = 0;
-        let c_apparentFluxBlue = 0;
+        //Grayscale coloration scaling
+        let i_grayScaleRed = 0;
+        let i_grayScaleGreen = 0;
+        let i_grayScaleBlue = 0;
+        //The absorbance of the material
+        let i_absorbanceRed = 0;
+        let i_absorbanceGreen = 0;
+        let i_absorbanceBlue = 0;
+        //Light source color
+        let i_lightFluxRed = 0;
+        let i_lightFluxGreen = 0;
+        let i_lightFluxBlue = 0;
+        //
+        let i_apparentFluxRed = 0;
+        let i_apparentFluxGreen = 0;
+        let i_apparentFluxBlue = 0;
 
         //For quickly finding correct thicknesses, a lookup table will be computed
         let grayThicknessMap =[];
         let grayThicknessMapValid = false;
 
+        function docOnLoad() {
+            //Set the UI state to previous saved state
+            loadStorageValues();
+            setValuesFromSelects();
+            setUIValues();
+            //Process the current UI state as required
+            storePreviousSelects();
+            storeCustomValues();
+            setDisabledInputs();
+            //Setup the event listeners
+            setListeners();
+        }
 
         function setListeners() {
             document.addEventListener('dragover', (e) => {
@@ -286,10 +311,10 @@
                 }
             });
 
-            grayscaleAlgoSelect.addEventListener('change', grayscaleAlgoSelectChange);
-            materialSelect.addEventListener('change', materialSelectChange);
-            lightSourceSelect.addEventListener('change', lightSourceSelectChange);
-            eyeSensSelect.addEventListener('change', eyeSensSelectChange);
+            grayscaleAlgoSelect.addEventListener('change', onSelectChange);
+            materialSelect.addEventListener('change', onSelectChange);
+            lightSourceSelect.addEventListener('change', onSelectChange);
+            eyeSensSelect.addEventListener('change', onSelectChange);
         }
 
         function loadStorageValues() {
@@ -375,7 +400,141 @@
             blueEyeSensInput.value = blueEyeSens;
         }
 
-        function getUIValues() {
+        function setDisabledInputs() {
+            if(grayscaleAlgo != "custom") {
+                    redGrayValueInput.disabled = true;
+                    greenGrayValueInput.disabled = true;
+                    blueGrayValueInput.disabled = true;
+            }
+            else {
+                redGrayValueInput.disabled = false;
+                greenGrayValueInput.disabled = false;
+                blueGrayValueInput.disabled = false;
+            }
+
+            if(material != "custom") {
+                    redTransmissionInput.disabled = true;
+                    greenTransmissionInput.disabled = true;
+                    blueTransmissionInput.disabled = true;
+            }
+            else {
+                redTransmissionInput.disabled = false;
+                greenTransmissionInput.disabled = false;
+                blueTransmissionInput.disabled = false;
+            }
+
+            if(lightSource != "custom") {
+                    redLightInput.disabled = true;
+                    greenLightInput.disabled = true;
+                    blueLightInput.disabled = true;
+            }
+            else {
+                redLightInput.disabled = false;
+                greenLightInput.disabled = false;
+                blueLightInput.disabled = false;
+            }
+
+            if(eyeSens != "custom") {
+                    redEyeSensInput.disabled = true;
+                    greenEyeSensInput.disabled = true;
+                    blueEyeSensInput.disabled = true;
+            }
+            else {
+                redEyeSensInput.disabled = false;
+                greenEyeSensInput.disabled = false;
+                blueEyeSensInput.disabled = false;
+            }
+        }
+
+        function setValuesFromSelects() {
+            switch(grayscaleAlgo) {
+                case "humaneye":
+                    redGrayValue = 0.299;
+                    greenGrayValue = 0.587;
+                    blueGrayValue = 0.114;
+                    break;
+
+                case "linear":
+                    redGrayValue = 1.0;
+                    greenGrayValue = 1.0;
+                    blueGrayValue = 1.0;
+                    break;
+
+                case "custom":
+                    redGrayValue = c_redGrayValue;
+                    greenGrayValue = c_greenGrayValue;
+                    blueGrayValue = c_blueGrayValue;
+                    break;
+            }
+
+            switch(material) {
+                case "pla_white":
+                    redTransmission = 0.901 ;
+                    greenTransmission =  0.707;
+                    blueTransmission =  0.484;
+                    break;
+
+                case "custom":
+                    redTransmission = c_redTransmission ;
+                    greenTransmission = c_greenTransmission;
+                    blueTransmission = c_blueTransmission;
+                    break;
+            }
+
+            switch(lightSource) {
+                case "sunlight":
+                    redLight = 300;
+                    greenLight = 300;
+                    blueLight = 400;
+                    break;
+
+                case "7000k":
+                    redLight = 100;
+                    greenLight = 100;
+                    blueLight = 100;
+                    break;
+
+                case "5700k":
+                    redLight = 100;
+                    greenLight = 100;
+                    blueLight = 100;
+                    break;
+
+                case "4000k":
+                    redLight = 100;
+                    greenLight = 100;
+                    blueLight = 100;
+                    break;
+
+                case "2700k":
+                    redLight = 100;
+                    greenLight = 100;
+                    blueLight = 100;
+                    break;
+
+                case "custom":
+                    redLight = c_redLight;
+                    greenLight = c_greenLight;
+                    blueLight = c_blueLight;
+                    break;
+            }
+
+            switch(eyeSens) {
+                case "standard":
+                    redEyeSens = 0.299;
+                    greenEyeSens = 0.587;
+                    blueEyeSens = 0.114;
+                    break;
+
+                case "custom":
+                    redEyeSens = c_redEyeSens;
+                    greenEyeSens = c_greenEyeSens;
+                    blueEyeSens = c_blueEyeSens;
+                    break;
+            }
+        }
+
+        function getInputValues() {
             maxThickness = maxThicknessInput.value;
             minThickness = minThicknessInput.value;
             maxTransmission = maxTransmissionInput.value;
@@ -388,10 +547,10 @@
             blueGrayValue = blueGrayValueInput.value;
 
             material = materialSelect.value;
+            transmissionThickness = transmissionThicknessInput.value;
             redTransmission = redTransmissionInput.value;
             greenTransmission = greenTransmissionInput.value;
             blueTransmission = blueTransmissionInput.value;
-            transmissionThickness = transmissionThicknessInput.value;
 
             lightSource = lightSourceSelect.value;
             redLight = redLightInput.value;
@@ -404,35 +563,49 @@
             blueEyeSens = blueEyeSensInput.value;
         }
 
-        function setValuesFromSelects() {
-            switch(grayscaleAlgo) {
-
+        function storeCustomValues() {
+            if(previousGrayscaleAlgo == "custom") {
+                    c_redGrayValue = redGrayValue;
+                    c_greenGrayValue = greenGrayValue;
+                    c_blueGrayValue = blueGrayValue;
             }
-            switch(material) {
-
+            if(previousMaterial == "custom") {
+                    c_redTransmission = redTransmission;
+                    c_greenTransmission = greenTransmission;
+                    c_blueTransmission = blueTransmission;
             }
-            switch(lightSource) {
-
+            if(previousLightSource == "custom") {
+                    c_redLight = redLight;
+                    c_greenLight = greenLight;
+                    c_blueLight = blueLight;
             }
-            switch(eyeSens) {
-                
+            if(previousEyeSens == "custom") {
+                    c_redEyeSens = redEyeSens;
+                    c_greenEyeSens = greenEyeSens;
+                    c_blueEyeSens = blueEyeSens;
             }
-
         }
 
-        function computeConstants() {
-            absorbanceRed = Math.log(transmissionRed)/sampleThickness;
-            absorbanceGreen = Math.log(transmissionGreen)/sampleThickness;
-            absorbanceBlue = Math.log(transmissionBlue)/sampleThickness;
+        function storePreviousSelects() {
+            previousGrayscaleAlgo = grayscaleAlgoSelect.value;
+            previousMaterial = materialSelect.value;
+            previousLightSource = lightSourceSelect.value;
+            previousEyeSens = eyeSensSelect.value;
+        }
 
-            apparentFluxRed = FluxRed*eyeSensRed;
-            apparentFluxGreen = FluxGreen*eyeSensGreen;
-            apparentFluxBlue = FluxBlue*eyeSensBlue;
-
-            totalFlux = apparentFluxRed+apparentFluxGreen+apparentFluxBlue;
-            lightRed = apparentFluxRed / totalFlux;
-            lightGreen = apparentFluxGreen / totalFlux;
-            lightBlue = apparentFluxBlue / totalFlux;
+        function onSelectChange() {
+            //Get the current values of the inputs
+            getInputValues();
+            //If there were custom values, store them
+            storeCustomValues();
+            //Choose the new values from the select inputs
+            setValuesFromSelects();
+            //Disable inputs as required
+            setDisabledInputs();
+            //Synchronize the UI to the internal values
+            setUIValues();
+            //Save the current select choices
+            storePreviousSelects();
         }
 
         function loadImage(imgSrc) {
@@ -444,11 +617,29 @@
                 ctx.drawImage(img, 0, 0);
                 rgbImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 origImg.src = canvas.toDataURL();
-
-                grayscaleImage();
             };
         }
 
+        function computeConstants() {
+            let totalTransmission = transmissionRed + transmissionGreen + transmissionBlue;
+            absorbanceRed = Math.log(transmissionRed/totalTransmission)/sampleThickness;
+            absorbanceGreen = Math.log(transmissionGreen/totalTransmission)/sampleThickness;
+            absorbanceBlue = Math.log(transmissionBlue/totalTransmission)/sampleThickness;
+
+            let 
+            apparentFluxRed = FluxRed*eyeSensRed;
+            apparentFluxGreen = FluxGreen*eyeSensGreen;
+            apparentFluxBlue = FluxBlue*eyeSensBlue;
+
+            totalFlux = apparentFluxRed+apparentFluxGreen+apparentFluxBlue;
+            lightRed = apparentFluxRed / totalFlux;
+            lightGreen = apparentFluxGreen / totalFlux;
+            lightBlue = apparentFluxBlue / totalFlux;
+        }
+
+        
+
+        //Calculate the grayscale image
         function grayscaleImage() {
             grayscaleImageData = rgbImageData;
             const rgbdata = rgbImageData.data;
@@ -463,7 +654,6 @@
                 }
                 graydata[i] = graydata[i + 1] = graydata[i + 2] = gray;
             }
-
             adjustContrast();
         }
 
@@ -487,12 +677,12 @@
             }
             ctx.putImageData(grayscaleImageData, 0, 0);
             grayImg.src = canvas.toDataURL();
-
-            // Simulate feeding the image to an unspecified algorithm
-            calculateThickness();
         }
 
-        // Simulate an algorithm that processes the image
+        //Calculate the heightmap
+        function heightmapImage() {
+            
+        }
         function calculateThickness() {
             //Check if we have mapped all 256 values of gray to their lengths, if not build that map
             if(!grayThicknessMapValid) {
@@ -581,10 +771,6 @@
             console.error("Max iterations reached without convergence.");
             return null; // Return null if no solution is found within the iteration limit
         }
-
-    loadStorageValues();
-    setUIValues();
-
 
     </script>
 </body>
