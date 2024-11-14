@@ -54,14 +54,14 @@
                 <tr>
                     <td>Max</td>
                     <td><input type="number" id="max-thickness" name="Max Thickness"/></td>
-                    <td>↔️</td>
-                    <td><input type="number" id="max-transmission" name="Max Transmission"/></td>
+                    <td></td>
+                    <td><input type="number" id="max-transmission" name="Max Transmission" disabled/></td>
                 </tr>
                 <tr>
                     <td>Min
                     <td><input type="number" id="min-thickness" name="Min Thickness"/></td>
-                    <td>↔️</td>
-                    <td><input type="number" id="min-transmission" name="Min Transmission"/></td>
+                    <td></td>
+                    <td><input type="number" id="min-transmission" name="Min Transmission" disabled/></td>
                 </tr>
             </table>
 
@@ -285,6 +285,7 @@
         let i_redApparentFlux = 0;
         let i_greenApparentFlux = 0;
         let i_blueApparentFlux = 0;
+        //
         //For quickly finding correct thicknesses, a lookup table will be computed
         let grayThicknessMap =[];
         let grayThicknessMapValid = false;
@@ -633,7 +634,6 @@
                                                     rgbImage.width, rgbImage.height);
             ctx.putImageData(grayscaleImage.data, 0, 0);
             grayImg.src = canvas.toDataURL();
-            grayscaleDataValid = true;
         }
 
         //Calculate the heightmap
@@ -644,8 +644,15 @@
             computeSelectValues();
             getOtherUIValues();
             computeConstants();
-            calculateThickness();
-            
+            calculateGrayThicknessLookupArray();
+            calculateThicknessArray();
+            calculateAdjustedGrayscale();
+            heightImage = new Image();
+            heightImage.data = new ImageData(new Uint8ClampedArray(heightArray),
+                                                rgbImage.width, rgbImage.height);
+            ctx.putImageData(heightImage, 0, 0);
+            // Display the resulting image
+            outputImg.src = canvas.toDataURL();
         }
 
         function computeConstants() {
@@ -711,27 +718,31 @@
         }
 
 
-        function calculateThickness() {
+        function calculateGrayThicknessLookupArray() {
+            //Produce a lookup array of thicknesses where the index into the array
+            //is the gray value (0-255) and the value at that index is the thickness
             grayThicknessMap = [];
             let thickness_guess = 0.5;
-            let transmission_per_bit = (whiteTransmission - blackTransmission)/255;
+            let transmission_per_bit = (maxTransmission - minTransmission)/255;
             for(let gray=0; gray<256; gray += 1) {
-                const transmission = (gray*transmission_per_bit)+blackTransmission;
-                const thickness = findThicknessForTransmission( transmission, thickness_guess)
+                const transmission = (gray*transmission_per_bit)+minTransmission;
+                const thickness = findThicknessForTransmission(transmission, thickness_guess)
                 thickness_guess = thickness;
                 grayThicknessMap.push(thickness)
             }
-            thicknessArray=[]
-            const data = grayscaleImage.data;            
-            for (let i = 0; i < data.length; i += 4) {
-                const l = grayThicknessMap[Math.floor(data[i])];
+        }
+
+        function calculateThicknessArray() {
+            thicknessArray=[]       
+            for (let i = 0; i < grayscaleArray.length; i += 4) {
+                const l = grayThicknessMap[Math.floor(grayscaleArray[i])];
                 thicknessArray.push(l);
             }
-
-            calculateAdjustedGrayscale();
         }
 
         function calculateAdjustedGrayscale() {
+            //Create a new greyscale image where white = minthickness and
+            //black = maxthickness
             thicknessMin = 150;
             thicknessMax = 0;
             //Find min and max thickness values
@@ -742,37 +753,33 @@
             }
 
             const thicknessRange = thicknessMax - thicknessMin;
-            correctGrayImageData = grayscaleImage;
+            heightArray = [];
             for (let i = 0; i < thicknessArray.length; i += 1) {
                 const grayFrac = 1 - ((thicknessArray[i]-thicknessMin)/thicknessRange);
                 const gray = Math.floor(255*grayFrac);
                 const pixelIndex=4*i;
-                correctGrayImageData.data[pixelIndex]=gray;
-                correctGrayImageData.data[pixelIndex+1]=gray;
-                correctGrayImageData.data[pixelIndex+2]=gray;
-                correctGrayImageData.data[pixelIndex+3]=255;
+                heightArray.push(gray);
+                heightArray.push(gray);
+                heightArray.push(gray);
+                heightArray.push(255);
             }
-            ctx.putImageData(correctGrayImageData, 0, 0);
-            // Display the resulting image
-            outputImg.src = canvas.toDataURL();
-            console.log([thicknessMin, thicknessMax])
         }
 
         function beerLambertMultiWavelength(length) {
             //Beer-lambert law: It = I0 * e^-a*l
             //For multiple wavelengths (r,g,b) total light=
             //Itrgb = (Ir*e^-ar*l) + (Ig*e^-ag*l) + (Ib*e^-ab*l)
-            const Itrgb = (lightRed * Math.exp(absorbanceRed*length))+
-                        (lightGreen * Math.exp(absorbanceGreen*length))+
-                        (lightBlue * Math.exp(absorbanceBlue*length));
+            const Itrgb = (i_redApparentFlux * Math.exp(absorbanceRed*length))+
+                        (i_greenApparentFlux * Math.exp(absorbanceGreen*length))+
+                        (i_blueApparentFlux * Math.exp(absorbanceBlue*length));
             return Itrgb;
         }
 
         function derivBeerLambertMultiWavelength(length) {
             //Deriviative of beer-lambert law for multiple absorbance/wavelengths
-            const dItrgb = (absorbanceRed * lightRed * Math.exp(absorbanceRed*length))+
-                        (absorbanceGreen * lightGreen * Math.exp(absorbanceGreen*length))+
-                        (absorbanceBlue * lightBlue * Math.exp(absorbanceBlue*length));
+            const dItrgb = (absorbanceRed * i_redApparentFlux * Math.exp(absorbanceRed*length))+
+                        (absorbanceGreen * i_greenApparentFlux * Math.exp(absorbanceGreen*length))+
+                        (absorbanceBlue * i_blueApparentFlux * Math.exp(absorbanceBlue*length));
             return dItrgb;
         }
 
