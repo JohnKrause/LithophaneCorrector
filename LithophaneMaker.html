@@ -66,7 +66,7 @@
             </table>
 
             <h3>Lithophane Material</h3>
-             <select id="material-select" name="Model Material">
+             <select id="material-select" name="Model Material" onchange="transmissionSelectOnChange()">
                 <option value="pla_white">White PLA</option>
                 <option value="custom">Custom</option>
             </select><p/>
@@ -78,20 +78,20 @@
                 </tr>
                 <tr>
                     <td>Red (595 nm)</td>
-                    <td><input type="number" id="red-transmission" name="Red Transmission"/></td>
+                    <td><input type="number" id="red-transmission" name="Red Transmission" onchange="transmissionInputOnChange()"/></td>
                 </tr>
                 <tr>
                     <td>Green (525 nm)</td>
-                    <td><input type="number" id="green-transmission" name="Green Transmission"/></td>
+                    <td><input type="number" id="green-transmission" name="Green Transmission" onchange="transmissionInputOnChange()"/></td>
                 </tr>
                 <tr>
                     <td>Blue (450 nm)</td>
-                    <td><input type="number" id="blue-transmission" name="Blue Transmission"/></td>
+                    <td><input type="number" id="blue-transmission" name="Blue Transmission" onchange="transmissionInputOnChange()"/></td>
                 </tr>
             </table>
             <h3>Image Processing settings</h3>
             Maximize Contrast <input type="checkbox" id="maximize-contrast" name="Maximize Contrast" checked/><p/>
-            Grayscale Algorithm <select id="grayscale-algorithm-select" name="Grayscale Algorithm">
+            Grayscale Algorithm <select id="grayscale-algorithm-select" name="Grayscale Algorithm" onchange="grayscaleSelectOnChange()">
                 <option value="humaneye">Human eye adjusted</option>
                 <option value="linear">Linear</option>
                 <option value="custom">Custom</option>
@@ -103,20 +103,20 @@
                 </tr>
                 <tr>
                     <td>Red</td>
-                    <td><input type="number" id="red-gray-value" name="Red Grayscale Value"/></td>
+                    <td><input type="number" id="red-gray-value" name="Red Grayscale Value" onchange="grayscaleInputOnChange()"/></td>
                 </tr>
                 <tr>
                     <td>Green</td>
-                    <td><input type="number" id="green-gray-value" name="Green Grayscale Value"/></td>
+                    <td><input type="number" id="green-gray-value" name="Green Grayscale Value" onchange="grayscaleInputOnChange()"/></td>
                 </tr>
                 <tr>
                     <td>Blue</td>
-                    <td><input type="number" id="blue-gray-value" name="Blue Grayscale Value"/></td>
+                    <td><input type="number" id="blue-gray-value" name="Blue Grayscale Value" onchange="grayscaleInputOnChange()"/></td>
                 </tr>
             </table>
 
             <h3>Lithophane Color settings</h3>
-            Light Source <select id="lightsource-select" name="Illumination Source Color">
+            Light Source <select id="lightsource-select" name="Illumination Source Color" onchange="lightsourceSelectOnChange()">
                 <option value="sunlight">Sunlight (10000K)</option>
                 <option value="7000k">Cool-white (7000K)</option>
                 <option value="5700k">Day-white (5700K)</option>
@@ -131,20 +131,20 @@
                 </tr>
                 <tr>
                     <td>Red</td>
-                    <td><input type="number" id="red-light" name="Light Red Output"/></td>
+                    <td><input type="number" id="red-light" name="Light Red Output" onchange="lightsourceInputOnChange()"/></td>
                 </tr>
                 <tr>
                     <td>Green</td>
-                    <td><input type="number" id="green-light" name="Light Green Output"/></td>
+                    <td><input type="number" id="green-light" name="Light Green Output" onchange="lightsourceInputOnChange()"/></td>
                 </tr>
                 <tr>
                     <td>Blue</td>
-                    <td><input type="number" id="blue-light" name="Light Blue Output"/></td>
+                    <td><input type="number" id="blue-light" name="Light Blue Output" onchange="lightsourceInputOnChange()"/></td>
                 </tr>
             </table>
 
             <h3>Human-eye Adjustment</h3>
-            Color Sensitivity <select id="human-eye-select" name="Human-eye Adjustment">
+            Color Sensitivity <select id="human-eye-select" name="Human-eye Adjustment" onchange="eyesensSelectOnChange()">
                 <option value="standard">Standard</option>
                 <option value="custom">Custom</option>
             </select><p/>
@@ -155,19 +155,18 @@
                 </tr>
                 <tr>
                     <td>Red</td>
-                    <td><input type="number" id="red-eye-sens" name="Red Eye Sensitivity"/></td>
+                    <td><input type="number" id="red-eye-sens" name="Red Eye Sensitivity" onchange="eyesenseInputOnChange()"/></td>
                 </tr>
                 <tr>
                     <td>Green</td>
-                    <td><input type="number" id="green-eye-sens" name="Green Eye Sensitivity"/></td>
+                    <td><input type="number" id="green-eye-sens" name="Green Eye Sensitivity" onchange="eyesenseInputOnChange()"/></td>
                 </tr>
                 <tr>
                     <td>Blue</td>
-                    <td><input type="number" id="blue-eye-sens" name="Blue Eye Sensitivity"/></td>
+                    <td><input type="number" id="blue-eye-sens" name="Blue Eye Sensitivity" onchange="eyesenseInputOnChange()"/></td>
                 </tr>
             </table>
         </div>
-
         <div class="column right-column" id="drop-zone">
             <canvas id="canvas" style="display:none"></canvas>
             <img id="orig-img" class="preview-img" src=""/><p/>
@@ -176,7 +175,6 @@
             <input type="button" value="Generate Heightmap", onclick="computeHeightmap()"></input>
             <img id="output-img" class="preview-img" src=""/><p/>
         </div>
-
     </div>
 
     <script>
@@ -187,105 +185,89 @@
         const origImg = document.getElementById('orig-img');
         const grayImg = document.getElementById('gray-img');
         const outputImg = document.getElementById('output-img');
-        //Easy access for document elements
+
+        //Lithophane dimensional limitations
         const maxThicknessInput = document.getElementById("max-thickness");
         const minThicknessInput = document.getElementById("min-thickness");
         const maxTransmissionInput = document.getElementById("max-transmission");
         const minTransmissionInput = document.getElementById("min-transmission");
-
-        const maximizeContrastCheckbox = document.getElementById("maximize-contrast");
-        const grayscaleAlgoSelect = document.getElementById("grayscale-algorithm-select");
-        let previousGrayscaleAlgo = null;
-        let grayscaleAlgo = null;
-        const grayscaleTable = document.getElementById('grayscale-table');
-        const redGrayValueInput = document.getElementById("red-gray-value");
-        const greenGrayValueInput = document.getElementById("green-gray-value");
-        const blueGrayValueInput = document.getElementById("blue-gray-value");
-
-        const materialSelect = document.getElementById("material-select");
-        let previousMaterial = null;
-        let material = null;
-        const materialTransmissionTable = document.getElementById('transmission-table');
-        const redTransmissionInput = document.getElementById("red-transmission");
-        const greenTransmissionInput = document.getElementById("green-transmission");
-        const blueTransmissionInput = document.getElementById("blue-transmission");
-        const transmissionThicknessInput = document.getElementById("transmission-thickness");
-
-        const lightSourceSelect = document.getElementById('lightsource-select');
-        let previousLightSource = null;
-        let lightSource = null;
-        const lightSourceTable = document.getElementById('light-source-table');
-        const redLightInput = document.getElementById("red-light");
-        const greenLightInput = document.getElementById("green-light");
-        const blueLightInput = document.getElementById("blue-light");
-
-        const eyeSensSelect = document.getElementById('human-eye-select');
-        let previousEyeSens = null;
-        let eyeSens = null;
-        const eyeSensTable = document.getElementById('eye-sens-table');
-        const redEyeSensInput = document.getElementById("red-eye-sens");
-        const greenEyeSensInput = document.getElementById("green-eye-sens");
-        const blueEyeSensInput = document.getElementById("blue-eye-sens");
-
-        //----------Values that will be used in the calculation
-        //Dimensional limitation values
         let maxThickness = 0;
         let minThickness = 0;
         let maxTransmission = 0;
         let minTransmission = 0;
-        //For conversion of RGB -> Grayscale
-        let maximizeContrast = 0;
+
+        //RGB-Grayscale parameters
+        const maximizeContrastCheckbox = document.getElementById("maximize-contrast");
+        const grayscaleAlgoSelect = document.getElementById("grayscale-algorithm-select");
+        const redGrayValueInput = document.getElementById("red-gray-value");
+        const greenGrayValueInput = document.getElementById("green-gray-value");
+        const blueGrayValueInput = document.getElementById("blue-gray-value");
         let redGrayValue = 0;
         let greenGrayValue = 0;
         let blueGrayValue = 0;
         let c_redGrayValue = 0;
         let c_greenGrayValue = 0;
         let c_blueGrayValue = 0;
-        //Defining the spectral absorbance of the material
+        let i_redGrayValue = 0;
+        let i_greenGrayValue = 0;
+        let i_blueGrayValue = 0;
+
+        //Material characteristics
+        const materialSelect = document.getElementById("material-select");
+        let previousMaterial = null;
+        let material = null;
+        const redTransmissionInput = document.getElementById("red-transmission");
+        const greenTransmissionInput = document.getElementById("green-transmission");
+        const blueTransmissionInput = document.getElementById("blue-transmission");
+        const transmissionThicknessInput = document.getElementById("transmission-thickness");
+        let transmissionThickness = 0;
         let redTransmission = 0;
         let greenTransmission = 0;
         let blueTransmission = 0;
         let c_redTransmission = 0;
         let c_greenTransmission = 0;
         let c_blueTransmission = 0;
-        let transmissionThickness = 0;
-        //The illumination source
+        let i_redAbsorbance = 0;
+        let i_greenAbsorbance = 0;
+        let i_blueAbsorbance = 0;
+
+        //Illumination source parameters
+        const lightSourceSelect = document.getElementById('lightsource-select');
+        let previousLightSource = null;
+        let lightSource = null;
+        const redLightInput = document.getElementById("red-light");
+        const greenLightInput = document.getElementById("green-light");
+        const blueLightInput = document.getElementById("blue-light");
         let redLight = 0;
         let greenLight = 0;
         let blueLight = 0;
         let c_redLight = 0;
         let c_greenLight = 0;
         let c_blueLight = 0;
-        //Eye sensitivity
+        let i_redLight = 0;
+        let i_greenLight = 0;
+        let i_blueLight = 0;
+
+        //Apparent brightness after transmission through the lithophane
+        const eyeSensSelect = document.getElementById('human-eye-select');
+        const eyeSensTable = document.getElementById('eye-sens-table');
+        const redEyeSensInput = document.getElementById("red-eye-sens");
+        const greenEyeSensInput = document.getElementById("green-eye-sens");
+        const blueEyeSensInput = document.getElementById("blue-eye-sens");
+        let eyeSens = null;
         let redEyeSens = 0;
         let greenEyeSens = 0;
         let blueEyeSens = 0;
         let c_redEyeSens = 0;
         let c_greenEyeSens = 0;
         let c_blueEyeSens = 0;
-
-        //----------Intermediate calculations
-        //Grayscale coloration scaling
-        let i_redGrayValue = 0;
-        let i_greenGrayValue = 0;
-        let i_blueGrayValue = 0;
-        //The absorbance of the material
-        let i_redAbsorbance = 0;
-        let i_greenAbsorbance = 0;
-        let i_blueAbsorbance = 0;
-        //Light source color
-        let i_redLight = 0;
-        let i_greenLight = 0;
-        let i_blueLight = 0;
-        //
         let i_redEyeSens = 0;
         let i_greenEyeSens = 0;
         let i_blueEyeSens = 0;
-        //
         let i_redApparentFlux = 0;
         let i_greenApparentFlux = 0;
         let i_blueApparentFlux = 0;
-        //
+
         //For quickly finding correct thicknesses, a lookup table will be computed
         let grayThicknessMap =[];
         let grayThicknessMapValid = false;
@@ -305,6 +287,149 @@
         let heightImage = null;
         let heightArray = []
         let heightDataValid = false;
+
+        class GrayscaleControl {
+            constructor() {
+                this.grayscaleArray = [];
+                this.grayscaleImage = null;
+                this.grayscaleWidth = 0;
+                this.grayscaleHeight = 0;
+                //Load items from browser storage
+                this.maximizeContrast = localStorage.getItem("grayscaleControl_maximizeContrast") || true;
+                this.customRedValue = localStorage.getItem("grayscaleControl_customRedValue") || 0.299;
+                this.customGreenValue = localStorage.getItem("grayscaleControl_customGreenValue") || 0.587;
+                this.customBlueValue = localStorage.getItem("grayscaleControl_customBlueValue") || 0.114;
+                this.onChange(); //Call before loading current algo from storage
+                this.algo = localStorage.getItem("grayscaleControl_Algo") || 'humaneye';
+            }
+
+            saveValues() {
+                localStorage.setItem("grayscaleControl_maximizeContrast", this.maximizeContrast);
+                localStorage.setItem("grayscaleControl_Algo", this.algo);
+                localStorage.setItem("grayscaleControl_customRedValue", this.customRedValue);
+                localStorage.setItem("grayscaleControl_customGreenValue", this.customGreenValue);
+                localStorage.setItem("grayscaleControl_customBlueValue", this.customBlueValue);
+            }
+
+            onChange() {
+                //Check if previous algo was custom and save values
+                if(this.algo == "custom") {
+                    this.customRedValue = document.getElementById("red-gray-value").valueAsNumber;
+                    this.customGreenValue = document.getElementById("green-gray-value").valueAsNumber;
+                    this.customBlueValue = document.getElementById("blue-gray-value").valueAsNumber;
+                }
+                //Get the algo we are changing to
+                const nextAlgo = document.getElementById("grayscale-algorithm-select").value;
+                switch(nextAlgo) {
+                    case "humaneye":
+                        this.redValue = 0.299;
+                        this.greenValue = 0.587;
+                        this.blueValue = 0.114;
+                        break;
+
+                    case "linear":
+                        this.redValue = 1.0;
+                        this.greenValue = 1.0;
+                        this.blueValue = 1.0;
+                        break;
+
+                    case "custom":
+                        this.redValue = this.customRedValue;
+                        this.greenValue = this.customGreenValue;
+                        this.blueValue = this.customBlueValue;
+                        break;
+                }
+                //If required, change the values shown in the UI
+                if(this.algo != nextAlgo) {
+                    this.setUIValues();
+                }
+                //Set current algo to the ui input value
+                this.algo = nextAlgo;
+            }
+
+            inputChange() {
+
+            }
+
+            
+
+            updateUIValues() {
+                this.maximizeContrast = document.getElementById("maximize-contrast").value;
+                //Store the input values if we were on custom algo
+                const nextAlgo = document.getElementById("grayscale-algorithm-select").value;
+                
+                
+                
+
+                this.algo = ;
+                this.redValue = document.getElementById("red-gray-value").valueAsNumber;
+                this.greenValue = document.getElementById("green-gray-value").valueAsNumber;
+                this.blueValue = document.getElementById("blue-gray-value").valueAsNumber;
+            }
+
+            setUIValues() {
+
+            }
+
+            normalizeValues() {
+                
+
+            }
+
+            convertRGBToGrayscale(rgbImage) {
+                //Compute normalized grayscale values
+                const totalValue = this.redValue + this.greenValue + this.blueValue;
+                const redScale = this.redValue / totalValue;
+                const greenScale = this.greenValue / totalValue;
+                const blueScale = this.blueValue / totalValue;
+                //Make new image data
+                this.grayscaleWidth = rgbImage.width;
+                this.grayscaleHeight = rgbImage.height;
+                const rgbArray = rgbImage.data;
+                //Create arrays
+                this.grayscaleArray = new Array(); //R,G,B
+                let grayscaleImageArray = new Uint8ClampedArray(); //R,G,B,Alpha
+                //Compute grayscale array
+                let minGray = 255;
+                let maxGray = 0;
+                for (let i = 0; i < rgbArray.length; i += 4) {
+                    let gray = redScale * rgbArray[i] + 
+                                greenScale * rgbArray[i + 1] + 
+                                blueScale * rgbArray[i + 2];
+                    if(gray < minGray) minGray = gray;
+                    if(gray > maxGray) maxGray = gray;
+                    this.grayscaleArray.push(gray);
+                }
+
+                //Maximize contrast if required
+                let scale = 0;
+                if(this.maximizeContrast) {
+                    scale = 255 / (maxGray - minGray);
+                }
+                else {
+                    scale = 1;
+                }
+                //Compute the grayscale image array and rescale the grayscale array
+                for (let i = 0; i < this.grayscaleArray.length; i += 1) {
+                    const gray = this.grayscaleArray[i];
+                    const scaledGray = (gray - minGray) * scale;
+                    const uint8ScaleGray = Math.floor(scaledGray);
+                    grayscaleArray[i] = scaledGray;
+                    grayscaleImageArray.push(uint8ScaleGray);
+                    grayscaleImageArray.push(uint8ScaleGray);
+                    grayscaleImageArray.push(uint8ScaleGray);
+                    grayscaleImageArray.push(255);
+                }
+                //Create the image
+                this.grayscaleImage = new Image();
+                this.grayscaleImage.data = new ImageData(grayscaleImageArray,
+                                                        this.grayscaleWidth, 
+                                                        this.grayscaleHeight);
+                return this.grayscaleImage;
+                //ctx.putImageData(grayscaleImage.data, 0, 0);
+                //grayImg.src = canvas.toDataURL();
+            }
+        }
 
         function docOnLoad() {
             loadStorageValues();
@@ -354,11 +479,7 @@
             maxTransmission = localStorage.getItem("maxTransmission") || 0.8;
             minTransmission = localStorage.getItem("minTransmission") || 0.15;
 
-            maximizeContrast = localStorage.getItem("maximizeContrast") || true;
-            grayscaleAlgo = localStorage.getItem("grayscaleAlgo") || 'humaneye';
-            c_redGrayValue = localStorage.getItem("c_redGrayValue") || 0.299;
-            c_greenGrayValue = localStorage.getItem("c_greenGrayValue") || 0.587;
-            c_blueGrayValue = localStorage.getItem("c_blueGrayValue") || 0.114;
+            
 
             material = localStorage.getItem("material") || "pla_white";
             c_redTransmission = localStorage.getItem("c_redTransmission") || 0.901;
@@ -382,11 +503,7 @@
             localStorage.setItem("minThickness", minThickness);
             localStorage.setItem("maxTransmission", maxTransmission);
             localStorage.setItem("minTransmission", minTransmission);
-            localStorage.setItem("maximizeContrast", maximizeContrast);
-            localStorage.setItem("grayscaleAlgo", grayscaleAlgo);
-            localStorage.setItem("c_redGrayValue", c_redGrayValue);
-            localStorage.setItem("c_greenGrayValue", c_greenGrayValue);
-            localStorage.setItem("c_blueGrayValue", c_blueGrayValue);
+            
             localStorage.setItem("material", material);
             localStorage.setItem("c_redTransmission", c_redTransmission);
             localStorage.setItem("c_greenTransmission", c_greenTransmission);
@@ -629,11 +746,7 @@
             getOtherUIValues();
             computeConstants();
             makeGrayscaleArray();
-            grayscaleImage = new Image();
-            grayscaleImage.data = new ImageData(new Uint8ClampedArray(grayscaleArray),
-                                                    rgbImage.width, rgbImage.height);
-            ctx.putImageData(grayscaleImage.data, 0, 0);
-            grayImg.src = canvas.toDataURL();
+            
         }
 
         //Calculate the heightmap
@@ -687,34 +800,7 @@
 
         //Calculate the grayscale image
         function makeGrayscaleArray() {
-            //Make new image data
-            const imgSize = rgbImage.width * rgbImage.height * 4;
-            grayscaleArray = new Array(imgSize);
-
-            for (let i = 0; i < rgbArray.length; i += 4) {
-                let gray = i_redGrayValue * rgbArray[i] + 
-                            i_greenGrayValue * rgbArray[i + 1] + 
-                            i_blueGrayValue * rgbArray[i + 2];
-                grayscaleArray[i] = grayscaleArray[i + 1] = grayscaleArray[i + 2] = gray;
-                grayscaleArray[i+3] = 255.0;
-            }
-
-            if(maximizeContrast) {
-                let minGray = 255, maxGray = 0;
-                //Find min and max gray values in image
-                for (let i = 0; i < grayscaleArray.length; i += 4) {
-                    const gray = grayscaleArray[i];
-                    if (gray < minGray) minGray = gray;
-                    if (gray > maxGray) maxGray = gray;
-                }
-
-                const scale = 255 / (maxGray - minGray);
-                for (let i = 0; i < grayscaleArray.length; i += 4) {
-                    const gray = grayscaleArray[i];
-                    const scaledGray = (gray - minGray) * scale;
-                    grayscaleArray[i] = grayscaleArray[i + 1] = grayscaleArray[i + 2] = scaledGray;
-                }
-            }
+            
         }
 
 
