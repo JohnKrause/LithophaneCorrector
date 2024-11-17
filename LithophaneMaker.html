@@ -7,13 +7,23 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            font-size: 16px;
+            padding: 5px;
+            margin: 0px;
         }
-        #drop-zone:hover {
-            background-color: #c0c0c0;
-            border: 2px dashed #cccccc;
+        h1 {
+            margin: 0px;
         }
-        .preview-img {
-            width: 400px;
+        h2 {
+            margin: 0px;
+        }
+        h3 {
+            margin:0px;
+        }
+        table {
+            margin: 0px;
+            padding: 0px;
+            border: 0px;
         }
         .container {
             display: flex;
@@ -21,11 +31,8 @@
         }
         .column {
             flex: 1;
-            padding: 20px;
-            margin-left: 20px;
-            margin-right: 20px;
-            margin-top: 0px;
-            margin-bottom: 0px;
+            padding: 10px;
+            margin: 0px;
             border-radius: 10px;
             border: 2px solid #cccccc;
         }
@@ -36,6 +43,23 @@
         .right-column {
             background-color: #f0f0f0;
         }
+        .settings-table {
+            width: 100%;
+        }
+        .settings-table td {
+            width:50%;
+        }
+        .settings-table input {
+            width: 100%;
+        }
+        .preview-img {
+            width: 400px;
+        }
+        #drop-zone:hover {
+            background-color: #c0c0c0;
+            border: 2px dashed #cccccc;
+        }
+        
 
     </style>
 </head>
@@ -43,8 +67,10 @@
     <h1>Lithophane Corrector</h1>
     <div class="container">
         <div class="column left-column">
-            <h3>Lithophane Thickness</h3>
             <table>
+                <tr>
+                    <td colspan="4"><h3>Lithophane Thickness:</h3></td>
+                </tr>
                 <tr>
                     <td></td>
                     <td>Thickness (mm)</td>
@@ -64,14 +90,18 @@
                     <td><input type="text" id="min-transmission" name="Min Transmission" disabled/></td>
                 </tr>
             </table>
-
-            <h3>Lithophane Material</h3>
-             <select id="material-select" name="Model Material">
-                <option value="pla_white">White PLA</option>
-                <option value="custom">Custom</option>
-            </select><p/>
-            Sample Thickness (mm) <input type="number" step=0.01 id="transmission-thickness" name="Transmission Sample Thickness"/>
-            <table id="transmission-table">
+            
+            <table class="settings-table">
+                <tr>
+                    <td><h3>Lithophane Material:</h3></td>
+                    <td><select id="material-select" name="Model Material">
+                        <option value="pla_white">White PLA</option>
+                        <option value="custom">Custom</option>
+                    </select></td>
+                </tr>
+                <tr>
+                    <td>Sample Thickness (mm)</td>
+                    <td><input type="number" step=0.01 id="transmission-thickness" name="Transmission Sample Thickness"/></td>
                 <tr>
                     <td>Color</td>
                     <td>Relative Transmission</td>
@@ -89,14 +119,20 @@
                     <td><input type="text" id="blue-transmission" name="Blue Transmission"/></td>
                 </tr>
             </table>
-            <h3>Image Processing settings</h3>
-            Maximize Contrast <input type="checkbox" id="maximize-contrast" name="Maximize Contrast" checked/><p/>
-            Grayscale Algorithm <select id="grayscale-algorithm-select" name="Grayscale Algorithm">
-                <option value="humaneye">Human eye adjusted</option>
-                <option value="linear">Linear</option>
-                <option value="custom">Custom</option>
-            </select><p/>
-            <table id="grayscale-table">
+
+            <table class="settings-table">
+                <tr>
+                    <td><h3>Grayscale Algorithm:</h3></td>
+                    <td><select id="grayscale-algorithm-select" name="Grayscale Algorithm">
+                        <option value="humaneye">Human eye adjusted</option>
+                        <option value="linear">Linear</option>
+                        <option value="custom">Custom</option>
+                        </select></td>
+                </tr>
+                <tr>
+                    <td>Maximize Contrast</td>
+                    <td><input type="checkbox" id="maximize-contrast" name="Maximize Contrast" checked/></td>
+                </tr>
                 <tr>
                     <td>Color</td>
                     <td>Relative Brightness</td>
@@ -115,16 +151,18 @@
                 </tr>
             </table>
 
-            <h3>Lithophane Color settings</h3>
-            Light Source <select id="lightsource-select" name="Illumination Source Color">
-                <option value="sunlight">Sunlight (10000K)</option>
-                <option value="7000k">Cool-white (7000K)</option>
-                <option value="5700k">Day-white (5700K)</option>
-                <option value="4000k">Natural-white (4000K)</option>
-                <option value="2700k">Warm-white (2700K)</option>
-                <option value="custom">Custom</option>
-            </select><p/>
-            <table id="light-source-table">
+            <table class="settings-table">
+                <tr>
+                    <td><h3>Light Source:</h3></td>
+                    <td><select id="lightsource-select" name="Illumination Source Color">
+                        <option value="sunlight">Sunlight (10000K)</option>
+                        <option value="7000k">Cool-white (7000K)</option>
+                        <option value="5700k">Day-white (5700K)</option>
+                        <option value="4000k">Natural-white (4000K)</option>
+                        <option value="2700k">Warm-white (2700K)</option>
+                        <option value="custom">Custom</option>
+                    </select></td>
+                </tr>
                 <tr>
                     <td>Color</td>
                     <td>Relative Light Output</td>
@@ -143,12 +181,14 @@
                 </tr>
             </table>
 
-            <h3>Human-eye Adjustment</h3>
-            Color Sensitivity <select id="human-eye-select" name="Human-eye Adjustment">
-                <option value="standard">Standard</option>
-                <option value="custom">Custom</option>
-            </select><p/>
-            <table id="eye-sens-table">
+            <table class="settings-table">
+                <tr>
+                    <td><h3>Light Sensitivity:</h3></td>  
+                    <td><select id="human-eye-select" name="Human-eye Adjustment">
+                        <option value="standard">Standard</option>
+                        <option value="custom">Custom</option>
+                    </select></td>
+                </tr>
                 <tr>
                     <td>Color</td>
                     <td>Relative Sensitivity</td>
@@ -169,15 +209,20 @@
         </div>
 
         <div class="column right-column" id="drop-zone">
-            <canvas id="canvas" style="display:none"></canvas>
-            <img id="orig-img" class="preview-img" src=""/><p/>
-            <input type="button" value="Generate Grayscale", onclick="computeGrayscale()"></input>
-            <img id="gray-img" class="preview-img" src=""/><p/>
-            <input type="button" value="Generate Heightmap", onclick="computeHeightmap()"></input>
-            <img id="output-img" class="preview-img" src=""/><p/>
+            <table>
+                <tr><td><h3>Original Image</h3></td></tr>
+                <tr><td><img id="orig-img" class="preview-img" src=""/></td></tr>
+                <tr><td><h3>Grayscale Image</h3></td></tr>
+                <tr><td><input type="button" value="Generate Grayscale", onclick="computeGrayscale()"></input></td></tr>
+                <tr><td><img id="gray-img" class="preview-img" src=""/><p/></td></tr>
+                <tr><td><h3>Grayscale Heightmap</h3></td></tr>
+                <tr><td><input type="button" value="Generate Heightmap", onclick="computeHeightmap()"></input></td></tr>
+                <tr><td><img id="output-img" class="preview-img" src=""/><p/></td></tr>
+            </table>
         </div>
 
     </div>
+    <canvas id="canvas" style="display:none"></canvas>
 
     <script>
         //----------Easy access to DOM elements
@@ -266,32 +311,22 @@
 
         //For quickly finding correct thicknesses, a lookup table will be computed
         let grayThicknessMap =[];
-        let grayThicknessMapValid = false;
 
         //Intermediate calculations
         let rgbImage=null;
         let rgbArray=[];
-        let rgbDataValid=false;
 
         let grayscaleImage = null;
         let grayscaleArray=[];
-        let grayscaleDataValid = false;
 
         let thicknessArray = [];
-        let thicknessDataValid = false;
 
         let heightImage = null;
         let heightArray = []
-        let heightDataValid = false;
 
         function docOnLoad() {
-            loadStorageValues();
-            computeSelectValues();
-            setDisabledInputs();
-            computeConstants();
-            computeTransmission();
-            setUIValues();
             setListeners();
+            resumeFromStorageValues();
         }
 
         function setListeners() {
@@ -313,41 +348,70 @@
                 }
             });
 
-            grayscaleAlgoSelect.addEventListener('change', onSelectChange);
-            materialSelect.addEventListener('change', onSelectChange);
-            lightSourceSelect.addEventListener('change', onSelectChange);
-            eyeSensSelect.addEventListener('change', onSelectChange);
-            eyeSensSelect.addEventListener('change', onSelectChange);
-            maxThicknessInput.addEventListener('change', onSelectChange);
-            minThicknessInput.addEventListener('change', onSelectChange);
+            maxThicknessInput.addEventListener('change', onThicknessChange);
+            minThicknessInput.addEventListener('change', onThicknessChange);
+
+            grayscaleAlgoSelect.addEventListener('change', onGraySelectChange);
+            redGrayValueInput.addEventListener('change', onGrayValueChange);
+            greenGrayValueInput.addEventListener('change', onGrayValueChange);
+            blueGrayValueInput.addEventListener('change', onGrayValueChange);
+            maximizeContrastCheckbox.addEventListener('change', onGrayValueChange);
+
+            materialSelect.addEventListener('change', onMaterialSelectChange);
+            redTransmissionInput.addEventListener('change', onMaterialValueChange);
+            greenTransmissionInput.addEventListener('change', onMaterialValueChange);
+            blueTransmissionInput.addEventListener('change', onMaterialValueChange);
+
+            lightSourceSelect.addEventListener('change', onLightSelectChange);
+            redLightInput.addEventListener('change', onLightValueCange);
+            greenLightInput.addEventListener('change', onLightValueCange);
+            blueLightInput.addEventListener('change', onLightValueCange);
+
+            eyeSensSelect.addEventListener('change', onEyeSensSelectChange);
+            redEyeSensInput.addEventListener('change', onEyeSensValueChange);
+            greenEyeSensInput.addEventListener('change', onEyeSensValueChange);
+            blueEyeSensInput.addEventListener('change', onEyeSensValueChange);
         }
 
         function onThicknessChange() {
             maxThickness = parseFloat(maxThicknessInput.value);
             minThickness = parseFloat(minThicknessInput.value);
             computeMinMaxTransmission();
+            saveStorageValues();
         }
 
         function onGraySelectChange() {
-            switch(grayscaleAlgoSelect.value) {
+            let input_disabled = false;
+            grayscaleAlgo = grayscaleAlgoSelect.value;
+            switch(grayscaleAlgo) {
                 case "humaneye":
+                    input_disabled = true;
                     redGrayValue = 0.299;
                     greenGrayValue = 0.587;
                     blueGrayValue = 0.114;
                     break;
 
                 case "linear":
+                    input_disabled = true;
                     redGrayValue = 1.0;
                     greenGrayValue = 1.0;
                     blueGrayValue = 1.0;
                     break;
 
                 case "custom":
+                    input_disabled = false;
                     redGrayValue = c_redGrayValue;
                     greenGrayValue = c_greenGrayValue;
                     blueGrayValue = c_blueGrayValue;
                     break;
             }
+            redGrayValueInput.value = redGrayValue;
+            greenGrayValueInput.value = greenGrayValue;
+            blueGrayValueInput.value = blueGrayValue;
+            redGrayValueInput.disabled = input_disabled;
+            greenGrayValueInput.disabled = input_disabled;
+            blueGrayValueInput.disabled = input_disabled;
+            redGrayValueInput.dispatchEvent(new Event('change'));
         }
 
         function onGrayValueChange() {
@@ -365,10 +429,34 @@
             i_redGrayValue = redGrayValue/totalGrayValue;
             i_greenGrayValue = greenGrayValue/totalGrayValue;
             i_blueGrayValue = blueGrayValue/totalGrayValue;
+            saveStorageValues();
         }
 
         function onMaterialSelectChange() {
+            let input_disabled = false;
+            material = materialSelect.value;
+            switch(material) {
+                case "pla_white":
+                    input_disabled = true;
+                    redTransmission = 0.901 ;
+                    greenTransmission =  0.707;
+                    blueTransmission =  0.484;
+                    break;
 
+                case "custom":
+                    input_disabled = false;
+                    redTransmission = c_redTransmission ;
+                    greenTransmission = c_greenTransmission;
+                    blueTransmission = c_blueTransmission;
+                    break;
+            }
+            redTransmissionInput.value = redTransmission;
+            greenTransmissionInput.value = greenTransmission;
+            blueTransmissionInput.value = blueTransmission;
+            redTransmissionInput.disabled = input_disabled;
+            greenTransmissionInput.disabled = input_disabled;
+            blueTransmissionInput.disabled = input_disabled;
+            redTransmissionInput.dispatchEvent(new Event('change'));
         }
 
         function onMaterialValueChange() {
@@ -387,10 +475,62 @@
             i_greenAbsorbance = Math.log(greenTransmission/totalTransmission)/transmissionThickness;
             i_blueAbsorbance = Math.log(blueTransmission/totalTransmission)/transmissionThickness;
             computeMinMaxTransmission();
+            saveStorageValues();
         }
 
         function onLightSelectChange() {
+            let input_disabled = false;
+            lightSource = lightSourceSelect.value;
+            switch(lightSource) {
+                case "sunlight":
+                    input_disabled = true;
+                    redLight = 300;
+                    greenLight = 300;
+                    blueLight = 400;
+                    break;
 
+                case "7000k":
+                    input_disabled = true;
+                    redLight = 100;
+                    greenLight = 100;
+                    blueLight = 100;
+                    break;
+
+                case "5700k":
+                    input_disabled = true;
+                    redLight = 100;
+                    greenLight = 100;
+                    blueLight = 100;
+                    break;
+
+                case "4000k":
+                    input_disabled = true;
+                    redLight = 100;
+                    greenLight = 100;
+                    blueLight = 100;
+                    break;
+
+                case "2700k":
+                    input_disabled = true;
+                    redLight = 100;
+                    greenLight = 100;
+                    blueLight = 100;
+                    break;
+
+                case "custom":
+                    input_disabled = false;
+                    redLight = c_redLight;
+                    greenLight = c_greenLight;
+                    blueLight = c_blueLight;
+                    break;
+            }
+            redLightInput.value = redLight;
+            greenLightInput.value = greenLight;
+            blueLightInput.value = blueLight;
+            redLightInput.disabled = input_disabled;
+            greenLightInput.disabled = input_disabled;
+            blueLightInput.disabled = input_disabled;
+            redLightInput.dispatchEvent(new Event('change'));
         }
 
         function onLightValueCange() {
@@ -408,10 +548,36 @@
             i_greenLight = greenLight/totalLight;
             i_blueLight = blueLight/totalLight;
             computeApparentFlux();
+            computeMinMaxTransmission();
+            saveStorageValues();
         }
 
-        function onEyeSensSelectionChange() {
+        function onEyeSensSelectChange() {
+            let input_disabled = false;
+            eyeSens = eyeSensSelect.value;
+            switch(eyeSens) {
+                case "standard":
+                    input_disabled = true;
+                    redEyeSens = 0.299;
+                    greenEyeSens = 0.587;
+                    blueEyeSens = 0.114;
+                    break;
 
+                case "custom":
+                    input_disabled = false;
+                    redEyeSens = c_redEyeSens;
+                    greenEyeSens = c_greenEyeSens;
+                    blueEyeSens = c_blueEyeSens;
+                    break;
+            }
+
+            redEyeSensInput.value = redEyeSens;
+            greenEyeSensInput.value = greenEyeSens;
+            blueEyeSensInput.value = blueEyeSens;
+            redEyeSensInput.disabled = input_disabled;
+            greenEyeSensInput.disabled = input_disabled;
+            blueEyeSensInput.disabled = input_disabled;
+            redEyeSensInput.dispatchEvent(new Event('change'));
         }
 
         function onEyeSensValueChange() {
@@ -429,13 +595,15 @@
             i_greenEyeSens = greenEyeSens/totalEyeSens;
             i_blueEyeSens = blueEyeSens/totalEyeSens;
             computeApparentFlux();
+            computeMinMaxTransmission();
+            saveStorageValues();
         }
 
         function computeMinMaxTransmission() {
             maxTransmission = beerLambertMultiWavelength(minThickness);
-            maxThicknessInput.value = maxTransmission;
+            maxTransmissionInput.value = maxTransmission.toFixed(3);
             minTransmission = beerLambertMultiWavelength(maxThickness);
-            minThicknessInput.value = minTransmission;
+            minTransmissionInput.value = minTransmission.toFixed(3);
         }
 
         function computeApparentFlux() {
@@ -447,31 +615,45 @@
             i_blueApparentFlux = (i_blueLight * i_blueEyeSens) / totalApparentFlux;
         }
 
-        function loadStorageValues() {
+        function resumeFromStorageValues() {
             maxThickness = localStorage.getItem("maxThickness") || 10;
+            maxThicknessInput.value = maxThickness;
             minThickness = localStorage.getItem("minThickness") || 0.6;
+            minThicknessInput.value = minThickness;
 
             maximizeContrast = localStorage.getItem("maximizeContrast") || true;
+            maximizeContrastCheckbox.checked = maximizeContrast;
             grayscaleAlgo = localStorage.getItem("grayscaleAlgo") || 'humaneye';
+            grayscaleAlgoSelect.value = grayscaleAlgo
             c_redGrayValue = localStorage.getItem("c_redGrayValue") || 0.299;
             c_greenGrayValue = localStorage.getItem("c_greenGrayValue") || 0.587;
             c_blueGrayValue = localStorage.getItem("c_blueGrayValue") || 0.114;
 
             material = localStorage.getItem("material") || "pla_white";
+            materialSelect.value = material;
+            transmissionThickness = localStorage.getItem("transmissionThickness") || 2.0;
+            transmissionThicknessInput.value = transmissionThickness;
             c_redTransmission = localStorage.getItem("c_redTransmission") || 0.901;
             c_greenTransmission = localStorage.getItem("c_greenTransmission") || 0.707;
             c_blueTransmission = localStorage.getItem("c_blueTransmission") || 0.484;
-            transmissionThickness = localStorage.getItem("transmissionThickness") || 2.0;
 
             lightSource = localStorage.getItem("lightSource") || "sunlight";
+            lightSourceSelect.value = lightSource;
             c_redLight = localStorage.getItem("c_redLight") || 300;
             c_greenLight = localStorage.getItem("c_greenLight") || 300;
             c_blueLight = localStorage.getItem("c_blueLight") || 400;
 
             eyeSens = localStorage.getItem("EyeSens") || "standard";
+            eyeSensSelect.value = eyeSens;
             c_redEyeSens = localStorage.getItem("c_redEyeSens") || 0.299;
             c_greenEyeSens = localStorage.getItem("c_greenEyeSens") || 0.587;
             c_blueEyeSens = localStorage.getItem("c_blueEyeSens") || 0.114;
+
+            eyeSensSelect.dispatchEvent(new Event('change'));
+            lightSourceSelect.dispatchEvent(new Event('change'));
+            materialSelect.dispatchEvent(new Event('change'));
+            grayscaleAlgoSelect.dispatchEvent(new Event('change'));
+            maxThicknessInput.dispatchEvent(new Event('change'));
         }
 
         function saveStorageValues() {
@@ -498,157 +680,6 @@
             localStorage.setItem("c_blueEyeSens", c_blueEyeSens);
         }
 
-        function setDisabledInputs() {
-            if(grayscaleAlgo != "custom") {
-                    redGrayValueInput.disabled = true;
-                    greenGrayValueInput.disabled = true;
-                    blueGrayValueInput.disabled = true;
-            }
-            else {
-                redGrayValueInput.disabled = false;
-                greenGrayValueInput.disabled = false;
-                blueGrayValueInput.disabled = false;
-            }
-
-            if(material != "custom") {
-                    redTransmissionInput.disabled = true;
-                    greenTransmissionInput.disabled = true;
-                    blueTransmissionInput.disabled = true;
-            }
-            else {
-                redTransmissionInput.disabled = false;
-                greenTransmissionInput.disabled = false;
-                blueTransmissionInput.disabled = false;
-            }
-
-            if(lightSource != "custom") {
-                    redLightInput.disabled = true;
-                    greenLightInput.disabled = true;
-                    blueLightInput.disabled = true;
-            }
-            else {
-                redLightInput.disabled = false;
-                greenLightInput.disabled = false;
-                blueLightInput.disabled = false;
-            }
-
-            if(eyeSens != "custom") {
-                    redEyeSensInput.disabled = true;
-                    greenEyeSensInput.disabled = true;
-                    blueEyeSensInput.disabled = true;
-            }
-            else {
-                redEyeSensInput.disabled = false;
-                greenEyeSensInput.disabled = false;
-                blueEyeSensInput.disabled = false;
-            }
-        }
-
-        function getCustomValues() {
-            //First save existing input values if the previous
-            //select value was custom
-            if(grayscaleAlgo == "custom") {
-                    c_redGrayValue = parseFloat(redGrayValueInput.value);
-                    c_greenGrayValue = parseFloat(greenGrayValueInput.value);
-                    c_blueGrayValue = parseFloat(blueGrayValueInput.value);
-            }
-            if(material == "custom") {
-                    c_redTransmission = parseFloat(redTransmissionInput.value);
-                    c_greenTransmission = parseFloat(greenTransmissionInput.value);
-                    c_blueTransmission = parseFloat(blueTransmissionInput.value);
-            }
-            if(lightSource == "custom") {
-                    c_redLight = parseFloat(redLightInput.value);
-                    c_greenLight = parseFloat(greenLightInput.value);
-                    c_blueLight = parseFloat(blueLightInput.value);
-            }
-            if(eyeSens == "custom") {
-                    c_redEyeSens = parseFloat(redEyeSensInput.value);
-                    c_greenEyeSens = parseFloat(greenEyeSensInput.value);
-                    c_blueEyeSens = parseFloat(blueEyeSensInput.value);
-            }
-        }
-
-        function getSelectValues() {
-            //Get current select box values
-            grayscaleAlgo = grayscaleAlgoSelect.value;
-            material = materialSelect.value;
-            lightSource = lightSourceSelect.value;
-            eyeSens = eyeSensSelect.value;
-        }
-
-        function computeSelectValues() {
-            
-
-            switch(material) {
-                case "pla_white":
-                    redTransmission = 0.901 ;
-                    greenTransmission =  0.707;
-                    blueTransmission =  0.484;
-                    break;
-
-                case "custom":
-                    redTransmission = c_redTransmission ;
-                    greenTransmission = c_greenTransmission;
-                    blueTransmission = c_blueTransmission;
-                    break;
-            }
-
-            switch(lightSource) {
-                case "sunlight":
-                    redLight = 300;
-                    greenLight = 300;
-                    blueLight = 400;
-                    break;
-
-                case "7000k":
-                    redLight = 100;
-                    greenLight = 100;
-                    blueLight = 100;
-                    break;
-
-                case "5700k":
-                    redLight = 100;
-                    greenLight = 100;
-                    blueLight = 100;
-                    break;
-
-                case "4000k":
-                    redLight = 100;
-                    greenLight = 100;
-                    blueLight = 100;
-                    break;
-
-                case "2700k":
-                    redLight = 100;
-                    greenLight = 100;
-                    blueLight = 100;
-                    break;
-
-                case "custom":
-                    redLight = c_redLight;
-                    greenLight = c_greenLight;
-                    blueLight = c_blueLight;
-                    break;
-            }
-
-            switch(eyeSens) {
-                case "standard":
-                    redEyeSens = 0.299;
-                    greenEyeSens = 0.587;
-                    blueEyeSens = 0.114;
-                    break;
-
-                case "custom":
-                    redEyeSens = c_redEyeSens;
-                    greenEyeSens = c_greenEyeSens;
-                    blueEyeSens = c_blueEyeSens;
-                    break;
-            }
-        }
-
-        
-
         function loadImage(imgSrc) {
             const img = new Image();
             img.src = imgSrc;
@@ -666,12 +697,6 @@
 
         function computeGrayscale() {
             saveStorageValues();
-            getCustomValues();
-            getSelectValues();
-            computeSelectValues();
-            getOtherUIValues();
-            computeConstants();
-            computeTransmission();
             makeGrayscaleArray();
             grayscaleImage = new Image();
             grayscaleImage.data = new ImageData(new Uint8ClampedArray(grayscaleArray),
@@ -683,12 +708,6 @@
         //Calculate the heightmap
         function computeHeightmap() {
             saveStorageValues();
-            getCustomValues();
-            getSelectValues();
-            computeSelectValues();
-            getOtherUIValues();
-            computeConstants();
-            computeTransmission();
             calculateGrayThicknessLookupArray();
             calculateThicknessArray();
             calculateAdjustedGrayscale();
@@ -698,22 +717,6 @@
             ctx.putImageData(heightImage.data, 0, 0);
             // Display the resulting image
             outputImg.src = canvas.toDataURL();
-        }
-
-        function computeConstants() {
-            //Compute the rgb->grayscale constants
-            
-            //Normalize and compute the spectral absorbances
-            
-            //Normalize and compute the spectral flux of the lightsource
-            
-            //Normalize and compute the spectra eye sensitivity
-            let totalEyeSens = redEyeSens + greenEyeSens + blueEyeSens;
-            i_redEyeSens = redEyeSens/totalEyeSens;
-            i_greenEyeSens = greenEyeSens/totalEyeSens;
-            i_blueEyeSens = blueEyeSens/totalEyeSens;
-            //Use the lightsource flux and eye sensitivity to get the apparent spectral flux
-            
         }
 
         //Calculate the grayscale image
@@ -800,6 +803,8 @@
             //Beer-lambert law: It = I0 * e^-a*l
             //For multiple wavelengths (r,g,b) total light=
             //Itrgb = (Ir*e^-ar*l) + (Ig*e^-ag*l) + (Ib*e^-ab*l)
+            console.log(i_redApparentFlux);
+            console.log(i_redAbsorbance);
             const Itrgb = (i_redApparentFlux * Math.exp(i_redAbsorbance*length))+
                         (i_greenApparentFlux * Math.exp(i_greenAbsorbance*length))+
                         (i_blueApparentFlux * Math.exp(i_blueAbsorbance*length));
